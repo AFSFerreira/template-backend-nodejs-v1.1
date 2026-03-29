@@ -1,6 +1,5 @@
 [tools]
-node = "22.14.0"
-pnpm = "10.26.2"
+bun = "1.3.11"
 
 [env]
 POSTGRES_CONTAINER_NAME = "template-pg"

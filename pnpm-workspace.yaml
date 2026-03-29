@@ -1,9 +1,0 @@
-onlyBuiltDependencies:
-  - '@prisma/engines'
-  - '@sentry-internal/node-cpu-profiler'
-  - '@sentry/cli'
-  - '@swc/core'
-  - argon2
-  - esbuild
-  - msgpackr-extract
-  - prisma

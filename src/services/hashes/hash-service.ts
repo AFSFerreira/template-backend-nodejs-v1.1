@@ -118,8 +118,8 @@ export class HashService {
 
     const pairs = Object.fromEntries(paramsSegment.split(',').map((pair) => pair.split('=')))
 
-    const memoryCost = Number(pairs['m'])
-    const timeCost = Number(pairs['t'])
+    const memoryCost = Number(pairs.m)
+    const timeCost = Number(pairs.t)
 
     if (Number.isNaN(memoryCost) || Number.isNaN(timeCost)) {
       return null

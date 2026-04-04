@@ -89,7 +89,7 @@ export const userSwaggerDocs = {
     description: 'Confirma o e-mail do usuário através do token de verificação enviado por e-mail.',
     tags: [swaggerTokens.tags.user.public],
     response: {
-      200: apiMessageSchema.describe('E-mail verificado com sucesso'),
+      200: z.object({ data: apiMessageSchema }).describe('E-mail verificado com sucesso'),
       400: apiErrorResponseSchema.describe('Verificação de e-mail não solicitada'),
       401: apiErrorResponseSchema.describe('Token inválido ou expirado'),
       404: apiErrorResponseSchema.describe('Usuário não encontrado'),

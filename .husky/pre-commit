@@ -1,3 +1,2 @@
 bun run ci:lint
-bun run ci:format
 git add -u

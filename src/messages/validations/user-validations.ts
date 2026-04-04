@@ -2,8 +2,6 @@ import { MAX_PASSWORD_SIZE, MIN_PASSWORD_SIZE } from '@constants/validation-cons
 
 export const INVALID_INNER_SPACES = 'Este campo não pode conter espaços'
 
-export const INVALID_AUTHENTICATION_INPUT = 'Erro de autenticação: formato de e-mail, nome de usuário ou senha inválido'
-
 export const PASSWORD_TOO_SHORT = `A senha deve ter pelo menos ${MIN_PASSWORD_SIZE} caracteres`
 
 export const PASSWORD_TOO_LONG = `A senha deve ter no máximo ${MAX_PASSWORD_SIZE} caracteres`

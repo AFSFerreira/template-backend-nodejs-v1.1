@@ -16,11 +16,11 @@ run = "docker compose up -d"
 
 [tasks."dev:install"]
 description = "Instala as dependências exatas do projeto"
-run = "pnpm install"
+run = "bun install"
 
 [tasks."dev:type-generate"]
 description = "Gera a tipagem do banco de dados (ex: Prisma Client)"
-run = "pnpm db:generate"
+run = "bun run db:generate"
 
 # [tasks."dev:wait-db"]
 # description = "Aguarda o healthcheck do PostgreSQL responder como saudável"
@@ -36,9 +36,9 @@ run = "pnpm db:generate"
 [tasks."dev:reset-full"]
 description = "Reseta o ambiente: derruba, sobe o banco, instala pacotes e recria o schema"
 depends = ["dev:down", "dev:up", "dev:install"]
-run = "pnpm db:reset"
+run = "bun run db:reset"
 
 [tasks."dev:start"]
 description = "Inicia o servidor backend em modo de desenvolvimento"
 depends = ["dev:install"]
-run = "pnpm start:dev"
+run = "bun run start:dev"

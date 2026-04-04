@@ -12,7 +12,14 @@ services:
       - "3000:3000"
     env_file:
       - .env
-    command: sleep infinity
+    command: >
+      bash -c "
+        if [ ! -f /home/vscode/.devcontainer-setup-done ]; then
+          bash /workspace/.devcontainer/setup.sh &&
+          touch /home/vscode/.devcontainer-setup-done;
+        fi;
+        exec sleep infinity
+      "
     networks:
       - app-network
     depends_on:

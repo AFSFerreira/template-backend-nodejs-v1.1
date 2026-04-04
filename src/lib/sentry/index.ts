@@ -1,8 +1,7 @@
 import { HAS_SENTRY } from '@constants/env-constants'
 import { env } from '@env/index'
 import { INTERNAL_SERVER_ERROR } from '@messages/responses/common-responses/5xx'
-import * as Sentry from '@sentry/node'
-import { nodeProfilingIntegration } from '@sentry/profiling-node'
+import * as Sentry from '@sentry/bun'
 import { getBusinessError } from '@services/error-handlers/get-business-error'
 
 export function initSentry() {
@@ -11,10 +10,7 @@ export function initSentry() {
   Sentry.init({
     dsn: env.SENTRY_DSN,
     environment: env.NODE_ENV,
-    integrations: [nodeProfilingIntegration()],
     tracesSampleRate: 1.0,
-    profileSessionSampleRate: 1.0,
-    profileLifecycle: 'trace',
     release: env.SENTRY_RELEASE,
 
     beforeSend: (event, hint) => {
@@ -27,6 +23,4 @@ export function initSentry() {
       return event
     },
   })
-
-  // Sentry.setupFastifyErrorHandler(app)
 }

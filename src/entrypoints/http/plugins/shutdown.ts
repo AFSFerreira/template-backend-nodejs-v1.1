@@ -14,7 +14,7 @@ import {
   STARTING_GRACEFUL_SHUTDOWN,
   WORKERS_SHUTDOWN,
 } from '@messages/loggings/system/server-loggings'
-import * as Sentry from '@sentry/node'
+import * as Sentry from '@sentry/bun'
 
 export async function gracefulShutdown(_instance: FastifyInstance) {
   logger.info(STARTING_GRACEFUL_SHUTDOWN)

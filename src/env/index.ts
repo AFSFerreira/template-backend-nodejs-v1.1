@@ -22,8 +22,6 @@ const envSchema = z.object({
   // Argon2 Configuration:
   ARGON_MEMORY_COST: z.coerce.number().min(4096).max(262144),
   ARGON_TIME_COST: z.coerce.number().min(1).max(10),
-  ARGON_PARALLELISM: z.coerce.number().min(1).max(8),
-  ARGON_SECRET: z.string().trim().nonempty().min(32).max(64),
 
   // Sentry:
   SENTRY_DSN: z.preprocess((value) => {

@@ -4,28 +4,24 @@ import type { HashedToken } from '@custom-types/services/hashes/hashed-token'
 import type { JobHash } from '@custom-types/services/hashes/job-hash'
 import type { Token } from '@custom-types/services/hashes/token'
 import type { UuidHash } from '@custom-types/services/hashes/uuid-hash'
-import type { Options as ArgonOptions } from 'argon2'
 import crypto from 'node:crypto'
 import { env } from '@env/index'
-import { argon2id, hash as argonHash, needsRehash, verify } from 'argon2'
 import { singleton } from 'tsyringe'
 import { v4 as uuidv4 } from 'uuid'
 
 /**
  * Serviço centralizado de hashing e geração de identificadores.
  *
- * Combina Argon2id (com pepper secreto) para senhas, SHA-256 para tokens,
+ * Combina Argon2id (via Bun.password) para senhas, SHA-256 para tokens,
  * HMAC-SHA256 para blind indexes de documentos, e UUID v4 para identificadores únicos.
  */
 @singleton()
 export class HashService {
   private static readonly argonConfig = {
-    type: argon2id,
+    algorithm: 'argon2id' as const,
     memoryCost: env.ARGON_MEMORY_COST,
     timeCost: env.ARGON_TIME_COST,
-    parallelism: env.ARGON_PARALLELISM,
-    secret: Buffer.from(env.ARGON_SECRET),
-  } satisfies ArgonOptions
+  }
 
   private static cachedDummyHash: string | null = null
 
@@ -40,13 +36,13 @@ export class HashService {
   }
 
   /**
-   * Gera hash Argon2id de uma senha com pepper secreto.
+   * Gera hash Argon2id de uma senha via Bun.password.
    *
    * @param password - Senha em texto plano.
    * @returns Hash Argon2id da senha.
    */
   async hashPassword(password: string): Promise<HashedPassword> {
-    const hash = await argonHash(password, HashService.argonConfig)
+    const hash = await Bun.password.hash(password, HashService.argonConfig)
     return hash as HashedPassword
   }
 
@@ -56,7 +52,7 @@ export class HashService {
    * @returns `true` se a senha corresponde ao hash.
    */
   async comparePassword({ password, hashedPassword }: IComparePassword): Promise<boolean> {
-    return await verify(hashedPassword, password, { secret: HashService.argonConfig.secret })
+    return await Bun.password.verify(password, hashedPassword)
   }
 
   /**
@@ -78,24 +74,57 @@ export class HashService {
   }
 
   /**
-   * Verifica se um hash Argon2 existente precisa ser recalculado
+   * Verifica se um hash Argon2id existente precisa ser recalculado
    * por estar com parâmetros de custo desatualizados.
+   *
+   * Parseia o formato PHC string ($argon2id$v=19$m=...,t=...,p=...) e compara
+   * com os valores atuais de configuração.
    */
   needsUpgrade(hash: string): boolean {
-    return needsRehash(hash, HashService.argonConfig)
+    const params = this.parseArgon2Hash(hash)
+
+    if (!params) {
+      return true
+    }
+
+    return (
+      params.memoryCost !== HashService.argonConfig.memoryCost || params.timeCost !== HashService.argonConfig.timeCost
+    )
   }
 
   /**
-   * Retorna um hash Argon2 dummy (cache interno) para prevenir timing attacks.
+   * Retorna um hash Argon2id dummy (cache interno) para prevenir timing attacks.
    *
    * Usado quando o usuário não é encontrado durante autenticação, garantindo
    * que o tempo de resposta seja consistente independentemente da existência do usuário.
    */
   async getDummyHash(): Promise<string> {
     if (!HashService.cachedDummyHash) {
-      HashService.cachedDummyHash = await argonHash('dummy_password_for_timing_attacks', HashService.argonConfig)
+      HashService.cachedDummyHash = await Bun.password.hash(
+        'dummy_password_for_timing_attacks',
+        HashService.argonConfig,
+      )
     }
 
     return HashService.cachedDummyHash
+  }
+
+  private parseArgon2Hash(hash: string): { memoryCost: number; timeCost: number } | null {
+    const paramsSegment = hash.split('$')[3]
+
+    if (!paramsSegment) {
+      return null
+    }
+
+    const pairs = Object.fromEntries(paramsSegment.split(',').map((pair) => pair.split('=')))
+
+    const memoryCost = Number(pairs['m'])
+    const timeCost = Number(pairs['t'])
+
+    if (Number.isNaN(memoryCost) || Number.isNaN(timeCost)) {
+      return null
+    }
+
+    return { memoryCost, timeCost }
   }
 }

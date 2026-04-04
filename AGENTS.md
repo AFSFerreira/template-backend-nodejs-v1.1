@@ -36,7 +36,7 @@ Antes de gerar qualquer código, valide mentalmente se respeita essas fronteiras
 | DI Container   | Tsyringe (`reflect-metadata`)                           |
 | Validação      | Zod 4                                                   |
 | Linter/Format  | Biome                                                   |
-| Hashing        | Argon2                                                  |
+| Hashing        | Bun.password (Argon2id nativo)                          |
 | Email          | Nodemailer + Nunjucks templates                         |
 | Monitoramento  | Sentry                                                  |
 | Rich Text      | TipTap / ProseMirror                                    |
@@ -162,8 +162,6 @@ ENCRYPTION_KEY              # base64, 44 chars (AES para dados sensíveis)
 BLIND_INDEX_SECRET          # base64, 44 chars (blind index para documentos)
 ARGON_MEMORY_COST           # 4096–262144
 ARGON_TIME_COST             # 1–10
-ARGON_PARALLELISM           # 1–8
-ARGON_SECRET                # 32–64 chars
 REDIS_HOST                  # host do Redis
 REDIS_PORT                  # porta do Redis (padrão: 6379)
 REDIS_PASSWORD              # senha do Redis
@@ -195,7 +193,7 @@ SENTRY_DSN                  # (opcional) DSN do Sentry
 - Toda entrada de dados é validada com Zod — sem exceção.
 - Dados sensíveis (senhas, tokens, documentos) NUNCA são logados.
 - Documentos de identidade são criptografados (AES) com blind index para busca.
-- Hashing de senhas com Argon2 (com secret pepper).
+- Hashing de senhas com Argon2id via Bun.password.
 - Comparações de tokens com `timingSafeEqual` — nunca compare strings diretamente.
 
 ## Comandos úteis
